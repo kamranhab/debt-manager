@@ -9,7 +9,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 
 const queryClient = new QueryClient();
 
-function PrivateRoute({ children }: { children: React.ReactNode }) {
+function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
 
   if (loading) {

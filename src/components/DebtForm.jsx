@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "./ui/dialog";
 import {
   Form,
@@ -24,82 +25,66 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDebts } from "../hooks/useDebts";
-import { Database } from "../types/database.types";
-
-type Debt = Database['public']['Tables']['debts']['Row'];
 
 const debtSchema = z.object({
   creditor: z.string().min(1, "Creditor is required"),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
-  status: z.enum(['PENDING', 'PAID']),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH'], {
     required_error: "Priority is required",
     invalid_type_error: "Priority must be LOW, MEDIUM, or HIGH",
-  })
+  }),
+  status: z.enum(['PENDING', 'PAID']).default('PENDING')
 });
 
-type DebtFormData = z.infer<typeof debtSchema>;
+export function DebtForm() {
+  const [open, setOpen] = useState(false);
+  const { addDebt } = useDebts();
+  const [error, setError] = useState(null);
 
-interface EditDebtFormProps {
-  debt: Debt;
-  onClose: () => void;
-  open: boolean;
-}
-
-export function EditDebtForm({ debt, onClose, open }: EditDebtFormProps) {
-  const { updateDebt } = useDebts();
-  const [error, setError] = useState<string | null>(null);
-
-  const form = useForm<DebtFormData>({    
+  const form = useForm({
     resolver: zodResolver(debtSchema),
     defaultValues: {
-      creditor: debt.creditor,
-      amount: debt.amount,
-      status: debt.status as 'PENDING' | 'PAID',
-      priority: debt.priority as 'LOW' | 'MEDIUM' | 'HIGH'
-    }
+      status: 'PENDING',
+    },
   });
 
-  useEffect(() => {
-    if (open) {
-      form.reset({
-        creditor: debt.creditor,
-        amount: debt.amount,
-        status: debt.status as 'PENDING' | 'PAID',
-        priority: debt.priority as 'LOW' | 'MEDIUM' | 'HIGH'
-      });
-    }
-  }, [debt, open, form]);
-
-  const onSubmit = async (data: DebtFormData) => {
+  const onSubmit = async (data) => {
     try {
       setError(null);
       const formattedData = {
         ...data,
         amount: Number(data.amount),
       };
-      await updateDebt.mutateAsync({
-        id: debt.id,
-        ...formattedData
-      });
-      onClose();
+      await addDebt.mutateAsync(formattedData);
+      form.reset();
+      setOpen(false);
     } catch (err) {
-      setError("Failed to update debt");
+      setError("Failed to add debt");
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 flex items-center gap-2 shadow-sm transition-all hover:shadow focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-plus-circle">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          Add New Debt
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold text-gray-900">Edit Debt</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold text-gray-900">Add New Debt</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             {error && (
-              <div className="p-4 text-sm text-destructive-foreground bg-destructive/10 rounded-lg border border-destructive/20">
+              <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-200">
                 {error}
               </div>
             )}
@@ -142,27 +127,6 @@ export function EditDebtForm({ debt, onClose, open }: EditDebtFormProps) {
             />
             <FormField
               control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-700 font-medium">Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="bg-white">
-                      <SelectItem value="PENDING" className="text-amber-700 hover:bg-amber-50">Pending</SelectItem>
-                      <SelectItem value="PAID" className="text-emerald-700 hover:bg-emerald-50">Paid</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-sm text-red-600" />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="priority"
               render={({ field }) => (
                 <FormItem>
@@ -173,7 +137,7 @@ export function EditDebtForm({ debt, onClose, open }: EditDebtFormProps) {
                         <SelectValue placeholder="Select priority level" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="bg-white">
+                    <SelectContent className="bg-white border-slate-200">
                       <SelectItem value="LOW" className="text-slate-700 hover:bg-slate-50">Low Priority</SelectItem>
                       <SelectItem value="MEDIUM" className="text-amber-700 hover:bg-amber-50">Medium Priority</SelectItem>
                       <SelectItem value="HIGH" className="text-red-700 hover:bg-red-50">High Priority</SelectItem>
@@ -187,7 +151,7 @@ export function EditDebtForm({ debt, onClose, open }: EditDebtFormProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={onClose}
+                onClick={() => setOpen(false)}
                 className="text-gray-600 hover:text-gray-900 border-gray-200"
               >
                 Cancel
@@ -203,10 +167,10 @@ export function EditDebtForm({ debt, onClose, open }: EditDebtFormProps) {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Updating...
+                    Adding...
                   </>
                 ) : (
-                  'Update Debt'
+                  'Add Debt'
                 )}
               </Button>
             </div>

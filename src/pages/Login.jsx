@@ -27,19 +27,19 @@ const loginSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+
 
 export default function Login() {
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [isRegistering, setIsRegistering] = useState(false);
 
-  const form = useForm<LoginFormData>({
+  const form = useForm({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data) => {
     try {
       setError(null);
       if (isRegistering) {
@@ -49,7 +49,7 @@ export default function Login() {
         await signIn(data.email, data.password);
         navigate('/dashboard');
       }
-    } catch (err: any) {
+    } catch (err) {
       const errorMessage = err?.message || (isRegistering ? 'Error creating account' : 'Invalid email or password');
       setError(errorMessage);
     }

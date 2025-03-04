@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useDebts } from '../hooks/useDebts';
 import { Button } from '../components/ui/button';
-import { Database } from '../types/database.types';
 import { DebtForm } from '../components/DebtForm';
 import { EditDebtForm } from '../components/EditDebtForm';
 import { ProfileMenu } from '../components/ProfileMenu';
@@ -26,21 +25,19 @@ import {
   AlertDialogTitle,
 } from "../components/ui/alert-dialog";
 
-type Debt = Database['public']['Tables']['debts']['Row'];
-
 export default function Dashboard() {
   const { debts, deleteDebt } = useDebts();
   const { currencyPreference } = useAuth();
-  const [error, setError] = useState<string | null>(null);
-  const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
+  const [error, setError] = useState(null);
+  const [editingDebt, setEditingDebt] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [debtToDelete, setDebtToDelete] = useState<string | null>(null);
+  const [debtToDelete, setDebtToDelete] = useState(null);
 
-  const getCurrencySymbol = (currency: string = 'INR') => {
+  const getCurrencySymbol = (currency = 'INR') => {
     return currency === 'USD' ? '$' : '₹';
   };
 
-  const handleDeleteDebt = async (id: string) => {
+  const handleDeleteDebt = async (id) => {
     try {
       setError(null);
       await deleteDebt.mutateAsync(id);
@@ -51,7 +48,7 @@ export default function Dashboard() {
     }
   };
 
-  const openDeleteDialog = (id: string) => {
+  const openDeleteDialog = (id) => {
     setDebtToDelete(id);
     setDeleteDialogOpen(true);
   };
