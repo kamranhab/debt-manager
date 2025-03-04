@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
+import { useAuth } from '../context/AuthContext';
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -11,19 +13,31 @@ export default function Landing() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="text-xl font-bold text-black">Debt Manager</div>
           <div className="space-x-4">
-            <Button
-              variant="ghost"
-              className="text-gray-600 hover:text-gray-900"
-              onClick={() => navigate('/login')}
-            >
-              Login
-            </Button>
-            <Button
-              className="bg-black hover:bg-black/90 text-white"
-              onClick={() => navigate('/login')}
-            >
-              Get Started
-            </Button>
+            {user ? (
+              <Button
+                variant="ghost"
+                className="text-gray-600 hover:text-gray-900"
+                onClick={() => navigate('/dashboard')}
+              >
+                Dashboard
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  className="text-gray-600 hover:text-gray-900"
+                  onClick={() => navigate('/login')}
+                >
+                  Login
+                </Button>
+                <Button
+                  className="bg-black hover:bg-black/90 text-white"
+                  onClick={() => navigate('/login')}
+                >
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </nav>
