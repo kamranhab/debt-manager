@@ -5,46 +5,37 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '../components/ui/button';
 import { useAuth } from '../context/AuthContext';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../components/ui/form";
 import { Input } from "../components/ui/input";
-import { Alert, AlertDescription } from "../components/ui/alert";
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(6, 'Min 6 characters'),
 });
-
-
 
 export default function Login() {
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [isRegistering, setIsRegistering] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    }
   });
 
   const onSubmit = async (data) => {
     try {
       setError(null);
+      setSuccess(null);
+      
       if (isRegistering) {
         await signUp(data.email, data.password);
-        setError('Registration successful! Please check your email to confirm your account before logging in.');
+        setSuccess('Account created. Please check your email.');
+        // Don't reset the form on success so user can immediately login
       } else {
         await signIn(data.email, data.password);
         navigate('/dashboard');
@@ -56,88 +47,123 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
-            {isRegistering ? 'Create Account' : 'Welcome Back'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <Alert className={`mb-6 ${error.includes('successful') ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-destructive/10 text-destructive border-destructive/20'}`}>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter your email"
-                        type="email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Top navigation */}
+      <div className="absolute top-6 left-6">
+        <div 
+          className="text-slate-400 hover:text-slate-900 text-sm cursor-pointer transition-colors flex items-center gap-2"
+          onClick={() => navigate('/')}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          back
+        </div>
+      </div>
+      
+      {/* Main content */}
+      <div className="flex-1 flex flex-col md:flex-row">
+        {/* Left panel - title only */}
+        <div className="md:w-1/3 p-8 md:p-16 flex items-center md:items-end justify-center md:justify-start">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-slate-400 mb-2">Debt Manager</div>
+            <h1 className="text-3xl md:text-4xl font-light text-slate-900 leading-tight">
+              {isRegistering ? 'create' : 'welcome'} 
+              <span className="block font-normal mt-1 text-slate-700">
+                {isRegistering ? 'your account.' : 'back.'}
+              </span>
+            </h1>
+          </div>
+        </div>
+        
+        {/* Right panel - login form */}
+        <div className="md:w-2/3 md:border-l border-slate-100 p-8 md:p-16 flex items-start justify-center">
+          <div className="w-full max-w-sm">
+            {/* Error message */}
+            {error && (
+              <div className="mb-8 p-4 bg-red-50 border-l-2 border-red-400 text-red-700 text-sm">
+                {error}
+              </div>
+            )}
+            
+            {/* Success message */}
+            {success && (
+              <div className="mb-8 p-4 bg-emerald-50 border-l-2 border-emerald-400 text-emerald-700 text-sm">
+                {success}
+              </div>
+            )}
+            
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-1">
+                <label className="text-xs uppercase tracking-wide text-slate-500 font-medium">
+                  Email
+                </label>
+                <Input
+                  type="email"
+                  placeholder="your@email.com"
+                  className="bg-white border-slate-200 focus:border-slate-400 focus:ring-0 rounded-none h-12 shadow-none text-slate-900"
+                  {...form.register("email")}
+                />
+                {form.formState.errors.email && (
+                  <p className="text-red-500 text-xs mt-1">{form.formState.errors.email.message}</p>
                 )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter your password"
-                        type="password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+              </div>
+              
+              <div className="space-y-1">
+                <label className="text-xs uppercase tracking-wide text-slate-500 font-medium">
+                  Password
+                </label>
+                <Input
+                  type="password"
+                  placeholder="• • • • • • • •"
+                  className="bg-white border-slate-200 focus:border-slate-400 focus:ring-0 rounded-none h-12 shadow-none text-slate-900"
+                  {...form.register("password")}
+                />
+                {form.formState.errors.password && (
+                  <p className="text-red-500 text-xs mt-1">{form.formState.errors.password.message}</p>
                 )}
-              />
-              <div className="space-y-2">
+              </div>
+              
+              <div className="pt-4 space-y-4">
                 <Button
                   type="submit"
-                  className="w-full bg-black hover:bg-black/90 text-white"
+                  className="w-full bg-slate-900 hover:bg-slate-800 text-white h-12 rounded-none font-normal"
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting
-                    ? isRegistering
-                      ? 'Creating account...'
-                      : 'Signing in...'
+                    ? "processing..."
                     : isRegistering
-                    ? 'Create Account'
-                    : 'Sign in'}
+                    ? "create account"
+                    : "sign in"
+                  }
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    setError(null);
-                    setIsRegistering(!isRegistering);
-                    form.reset();
-                  }}
-                >
-                  {isRegistering
-                    ? 'Already have an account? Sign in'
-                    : 'Need an account? Sign up'}
-                </Button>
+                
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setError(null);
+                      setSuccess(null);
+                      setIsRegistering(!isRegistering);
+                      form.reset();
+                    }}
+                    className="text-slate-500 hover:text-slate-800 text-sm transition-colors"
+                  >
+                    {isRegistering
+                      ? "Already have an account? Sign in"
+                      : "Need an account? Create one"}
+                  </button>
+                </div>
               </div>
             </form>
-          </Form>
-        </CardContent>
-      </Card>
+          </div>
+        </div>
+      </div>
+      
+      {/* Bottom strip */}
+      <div className="h-16 bg-white border-t border-slate-100 flex items-center px-8">
+        <div className="text-xs text-slate-400">© {new Date().getFullYear()} debt manager</div>
+      </div>
     </div>
   );
 }

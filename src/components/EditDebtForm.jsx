@@ -8,14 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
 import { Input } from "./ui/input";
 import {
   Select,
@@ -26,6 +18,8 @@ import {
 } from "./ui/select";
 import { useState, useEffect } from "react";
 import { useDebts } from "../hooks/useDebts";
+import { useToast } from "./ui/toast";
+
 const debtSchema = z.object({
   creditor: z.string().min(1, "Creditor is required"),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
@@ -39,6 +33,7 @@ const debtSchema = z.object({
 export function EditDebtForm({ debt, onClose, open }) {
   const { updateDebt } = useDebts();
   const [error, setError] = useState(null);
+  const { addToast } = useToast();
 
   const form = useForm({    
     resolver: zodResolver(debtSchema),
@@ -72,134 +67,150 @@ export function EditDebtForm({ debt, onClose, open }) {
         id: debt.id,
         ...formattedData
       });
+      
+      // Add toast notification
+      addToast({
+        message: `Debt to ${data.creditor} was successfully updated`,
+        type: 'success',
+        duration: 5000
+      });
+      
       onClose();
     } catch (err) {
       setError("Failed to update debt");
+      
+      // Error toast notification
+      addToast({
+        message: "Failed to update debt",
+        type: 'error',
+        duration: 5000
+      });
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold text-gray-900">Edit Debt</DialogTitle>
+      <DialogContent className="bg-white border border-slate-100 p-0 rounded-none shadow-md max-w-md">
+        <DialogHeader className="px-6 pt-6 pb-2">
+          <DialogTitle className="text-2xl font-light text-slate-900">Edit Debt</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-            {error && (
-              <div className="p-4 text-sm text-destructive-foreground bg-destructive/10 rounded-lg border border-destructive/20">
-                {error}
-              </div>
-            )}
-            <FormField
-              control={form.control}
-              name="creditor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-700 font-medium">Creditor Name</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Enter creditor name" 
-                      className="border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage className="text-sm text-red-600" />
-                </FormItem>
+        
+        <form onSubmit={form.handleSubmit(onSubmit)} className="px-6 pb-6">
+          {error && (
+            <div className="mb-6 p-3 border-l-2 border-red-500 bg-red-50 text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+          
+          <div className="space-y-5">
+            <div className="space-y-1">
+              <label className="text-xs uppercase tracking-wide text-slate-500 font-medium">
+                Creditor Name
+              </label>
+              <Input 
+                placeholder="Enter creditor name" 
+                className="border-slate-200 focus:border-slate-400 focus:ring-0 h-10 rounded-none shadow-none text-slate-900"
+                {...form.register("creditor")} 
+              />
+              {form.formState.errors.creditor && (
+                <p className="text-red-500 text-xs mt-1">{form.formState.errors.creditor.message}</p>
               )}
-            />
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-700 font-medium">Amount (₹)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      className="border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-sm text-red-600" />
-                </FormItem>
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-xs uppercase tracking-wide text-slate-500 font-medium">
+                Amount
+              </label>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                className="border-slate-200 focus:border-slate-400 focus:ring-0 h-10 rounded-none shadow-none text-slate-900"
+                {...form.register("amount", { 
+                  valueAsNumber: true,
+                  onChange: (e) => {
+                    const value = e.target.value;
+                    if (value === "") return form.setValue("amount", undefined);
+                    form.setValue("amount", parseFloat(value));
+                  }
+                })}
+              />
+              {form.formState.errors.amount && (
+                <p className="text-red-500 text-xs mt-1">{form.formState.errors.amount.message}</p>
               )}
-            />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-700 font-medium">Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="bg-white">
-                      <SelectItem value="PENDING" className="text-amber-700 hover:bg-amber-50">Pending</SelectItem>
-                      <SelectItem value="PAID" className="text-emerald-700 hover:bg-emerald-50">Paid</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-sm text-red-600" />
-                </FormItem>
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-xs uppercase tracking-wide text-slate-500 font-medium">
+                Status
+              </label>
+              <Select 
+                onValueChange={(value) => form.setValue("status", value)} 
+                defaultValue={form.watch("status")}
+              >
+                <SelectTrigger className="border-slate-200 focus:border-slate-400 focus:ring-0 h-10 rounded-none shadow-none bg-white text-slate-900">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-slate-100 p-0 rounded-none shadow-md">
+                  <SelectItem value="PENDING" className="hover:bg-slate-50 focus:bg-slate-50 rounded-none">Pending</SelectItem>
+                  <SelectItem value="PAID" className="hover:bg-slate-50 focus:bg-slate-50 rounded-none">Paid</SelectItem>
+                </SelectContent>
+              </Select>
+              {form.formState.errors.status && (
+                <p className="text-red-500 text-xs mt-1">{form.formState.errors.status.message}</p>
               )}
-            />
-            <FormField
-              control={form.control}
-              name="priority"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-700 font-medium">Priority Level</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white">
-                        <SelectValue placeholder="Select priority level" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="bg-white">
-                      <SelectItem value="LOW" className="text-slate-700 hover:bg-slate-50">Low Priority</SelectItem>
-                      <SelectItem value="MEDIUM" className="text-amber-700 hover:bg-amber-50">Medium Priority</SelectItem>
-                      <SelectItem value="HIGH" className="text-red-700 hover:bg-red-50">High Priority</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-sm text-red-600" />
-                </FormItem>
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-xs uppercase tracking-wide text-slate-500 font-medium">
+                Priority Level
+              </label>
+              <Select 
+                onValueChange={(value) => form.setValue("priority", value)} 
+                defaultValue={form.watch("priority")}
+              >
+                <SelectTrigger className="border-slate-200 focus:border-slate-400 focus:ring-0 h-10 rounded-none shadow-none bg-white text-slate-900">
+                  <SelectValue placeholder="Select priority level" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-slate-100 p-0 rounded-none shadow-md">
+                  <SelectItem value="LOW" className="hover:bg-slate-50 focus:bg-slate-50 rounded-none">Low Priority</SelectItem>
+                  <SelectItem value="MEDIUM" className="hover:bg-slate-50 focus:bg-slate-50 rounded-none">Medium Priority</SelectItem>
+                  <SelectItem value="HIGH" className="hover:bg-slate-50 focus:bg-slate-50 rounded-none">High Priority</SelectItem>
+                </SelectContent>
+              </Select>
+              {form.formState.errors.priority && (
+                <p className="text-red-500 text-xs mt-1">{form.formState.errors.priority.message}</p>
               )}
-            />
-            <div className="flex justify-end space-x-3 pt-4">
+            </div>
+            
+            <div className="flex justify-end gap-3 pt-6">
               <Button
                 type="button"
-                variant="outline"
                 onClick={onClose}
-                className="text-gray-600 hover:text-gray-900 border-gray-200"
+                className="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 hover:text-slate-900 rounded-none shadow-none"
               >
                 Cancel
               </Button>
               <Button 
                 type="submit" 
                 disabled={form.formState.isSubmitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-slate-900 hover:bg-slate-800 text-white rounded-none shadow-none"
               >
                 {form.formState.isSubmitting ? (
-                  <>
+                  <div className="flex items-center">
                     <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     Updating...
-                  </>
+                  </div>
                 ) : (
                   'Update Debt'
                 )}
               </Button>
             </div>
-          </form>
-        </Form>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
