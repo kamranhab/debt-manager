@@ -47,17 +47,19 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col" style={{ 
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+    }}>
       {/* Top navigation */}
       <div className="absolute top-6 left-6">
         <div 
-          className="text-slate-400 hover:text-slate-900 text-sm cursor-pointer transition-colors flex items-center gap-2"
+          className="text-[#8e8e8e] hover:text-[#262626] text-sm cursor-pointer transition-colors flex items-center gap-2"
           onClick={() => navigate('/')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
-          back
+          Back to Home
         </div>
       </div>
       
@@ -66,10 +68,12 @@ export default function Login() {
         {/* Left panel - title only */}
         <div className="md:w-1/3 p-8 md:p-16 flex items-center md:items-end justify-center md:justify-start">
           <div>
-            <div className="text-xs uppercase tracking-widest text-slate-400 mb-2">Debt Manager</div>
-            <h1 className="text-3xl md:text-4xl font-light text-slate-900 leading-tight">
-              {isRegistering ? 'create' : 'welcome'} 
-              <span className="block font-normal mt-1 text-slate-700">
+            <div className="text-xs uppercase tracking-widest text-[#8e8e8e] mb-2">Debt Manager</div>
+            <h1 className="text-3xl md:text-4xl font-light text-[#262626] leading-tight">
+              <span className="bg-gradient-to-r from-[#2563eb] to-[#16a34a] bg-clip-text text-transparent">
+                {isRegistering ? 'create' : 'welcome'}
+              </span>
+              <span className="block font-normal mt-1 text-[#262626]">
                 {isRegistering ? 'your account.' : 'back.'}
               </span>
             </h1>
@@ -77,64 +81,64 @@ export default function Login() {
         </div>
         
         {/* Right panel - login form */}
-        <div className="md:w-2/3 md:border-l border-slate-100 p-8 md:p-16 flex items-start justify-center">
+        <div className="md:w-2/3 md:border-l border-[#efefef] p-8 md:p-16 flex items-start justify-center">
           <div className="w-full max-w-sm">
             {/* Error message */}
             {error && (
-              <div className="mb-8 p-4 bg-red-50 border-l-2 border-red-400 text-red-700 text-sm">
+              <div className="mb-8 p-4 bg-[#ef4444]/10 rounded-xl text-[#ef4444] text-sm">
                 {error}
               </div>
             )}
             
             {/* Success message */}
             {success && (
-              <div className="mb-8 p-4 bg-emerald-50 border-l-2 border-emerald-400 text-emerald-700 text-sm">
+              <div className="mb-8 p-4 bg-[#16a34a]/10 rounded-xl text-[#16a34a] text-sm">
                 {success}
               </div>
             )}
             
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-1">
-                <label className="text-xs uppercase tracking-wide text-slate-500 font-medium">
+                <label className="text-xs uppercase tracking-wide text-[#8e8e8e] font-medium">
                   Email
                 </label>
                 <Input
                   type="email"
                   placeholder="your@email.com"
-                  className="bg-white border-slate-200 focus:border-slate-400 focus:ring-0 rounded-none h-12 shadow-none text-slate-900"
+                  className="bg-white border-[#efefef] focus:border-[#2563eb] focus:ring-0 rounded-full h-12 shadow-none text-[#262626]"
                   {...form.register("email")}
                 />
                 {form.formState.errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{form.formState.errors.email.message}</p>
+                  <p className="text-[#ef4444] text-xs mt-1">{form.formState.errors.email.message}</p>
                 )}
               </div>
               
               <div className="space-y-1">
-                <label className="text-xs uppercase tracking-wide text-slate-500 font-medium">
+                <label className="text-xs uppercase tracking-wide text-[#8e8e8e] font-medium">
                   Password
                 </label>
                 <Input
                   type="password"
                   placeholder="• • • • • • • •"
-                  className="bg-white border-slate-200 focus:border-slate-400 focus:ring-0 rounded-none h-12 shadow-none text-slate-900"
+                  className="bg-white border-[#efefef] focus:border-[#2563eb] focus:ring-0 rounded-full h-12 shadow-none text-[#262626]"
                   {...form.register("password")}
                 />
                 {form.formState.errors.password && (
-                  <p className="text-red-500 text-xs mt-1">{form.formState.errors.password.message}</p>
+                  <p className="text-[#ef4444] text-xs mt-1">{form.formState.errors.password.message}</p>
                 )}
               </div>
               
               <div className="pt-4 space-y-4">
                 <Button
                   type="submit"
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white h-12 rounded-none font-normal"
+                  className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white h-12 rounded-full font-normal"
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting
-                    ? "processing..."
+                    ? "Processing..."
                     : isRegistering
-                    ? "create account"
-                    : "sign in"
+                    ? "Create Account"
+                    : "Sign In"
                   }
                 </Button>
                 
@@ -147,7 +151,7 @@ export default function Login() {
                       setIsRegistering(!isRegistering);
                       form.reset();
                     }}
-                    className="text-slate-500 hover:text-slate-800 text-sm transition-colors"
+                    className="text-[#2563eb] hover:text-[#1d4ed8] text-sm transition-colors"
                   >
                     {isRegistering
                       ? "Already have an account? Sign in"
@@ -161,8 +165,8 @@ export default function Login() {
       </div>
       
       {/* Bottom strip */}
-      <div className="h-16 bg-white border-t border-slate-100 flex items-center px-8">
-        <div className="text-xs text-slate-400">© {new Date().getFullYear()} debt manager</div>
+      <div className="h-16 bg-white border-t border-[#efefef] flex items-center px-8">
+        <div className="text-xs text-[#8e8e8e]">© {new Date().getFullYear()} Debt Manager</div>
       </div>
     </div>
   );

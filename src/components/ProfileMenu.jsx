@@ -37,10 +37,10 @@ export function ProfileMenu() {
       <DropdownMenuTrigger asChild>
         <Button 
           variant="ghost" 
-          className="w-9 h-9 rounded-full p-0 bg-slate-100 hover:bg-slate-200 outline-none focus:ring-0"
+          className="w-10 h-10 rounded-full p-0 bg-[#efefef] hover:bg-[#dbdbdb] outline-none focus:ring-0"
         >
-          <Avatar className="w-9 h-9">
-            <AvatarFallback className="bg-slate-800 text-white text-sm">
+          <Avatar className="w-10 h-10">
+            <AvatarFallback className="bg-[#2563eb] text-white text-sm font-medium">
               {getInitials()}
             </AvatarFallback>
           </Avatar>
@@ -48,27 +48,27 @@ export function ProfileMenu() {
       </DropdownMenuTrigger>
       
       <DropdownMenuContent 
-        className="bg-white border border-slate-100 rounded-none shadow-md p-0 min-w-[220px]" 
+        className="bg-white border border-[#efefef] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-0 min-w-[250px]" 
         align="end"
       >
-        <div className="px-4 py-3 border-b border-slate-100">
-          <p className="text-sm font-medium text-slate-900">{user?.email}</p>
-          <p className="text-xs text-slate-500 truncate mt-1">
+        <div className="px-5 py-4 border-b border-[#efefef]">
+          <p className="text-sm font-semibold text-[#262626]">{user?.email}</p>
+          <p className="text-xs text-[#8e8e8e] truncate mt-1">
             User ID: {user?.id?.substring(0, 12)}...
           </p>
         </div>
         
         <DropdownMenuGroup className="py-1">
           <DropdownMenuItem 
-            className="px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer focus:bg-slate-50"
+            className="px-5 py-3 text-sm text-[#262626] hover:bg-[#fafafa] cursor-pointer focus:bg-[#fafafa] rounded-lg mx-1"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-              className="w-4 h-4 mr-3 text-slate-500" 
+              className="w-5 h-5 mr-3 text-[#8e8e8e]" 
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor" 
-              strokeWidth="2" 
+              strokeWidth="1.5" 
               strokeLinecap="round" 
               strokeLinejoin="round"
             >
@@ -79,16 +79,16 @@ export function ProfileMenu() {
           </DropdownMenuItem>
           
           <DropdownMenuItem 
-            className="px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer focus:bg-slate-50"
+            className="px-5 py-3 text-sm text-[#262626] hover:bg-[#fafafa] cursor-pointer focus:bg-[#fafafa] rounded-lg mx-1"
             onClick={toggleCurrency}
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-              className="w-4 h-4 mr-3 text-slate-500" 
+              className="w-5 h-5 mr-3 text-[#8e8e8e]" 
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor" 
-              strokeWidth="2" 
+              strokeWidth="1.5" 
               strokeLinecap="round" 
               strokeLinejoin="round"
             >
@@ -98,20 +98,20 @@ export function ProfileMenu() {
             </svg>
             <div className="flex justify-between items-center w-full">
               <span>Currency</span>
-              <span className="ml-4 text-slate-900 font-medium">{currencyPreference}</span>
+              <span className="ml-4 text-[#262626] font-medium bg-[#efefef] px-2 py-0.5 rounded-full text-xs">{currencyPreference}</span>
             </div>
           </DropdownMenuItem>
           
           <DropdownMenuItem 
-            className="px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer focus:bg-slate-50"
+            className="px-5 py-3 text-sm text-[#262626] hover:bg-[#fafafa] cursor-pointer focus:bg-[#fafafa] rounded-lg mx-1"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-              className="w-4 h-4 mr-3 text-slate-500" 
+              className="w-5 h-5 mr-3 text-[#8e8e8e]" 
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor" 
-              strokeWidth="2" 
+              strokeWidth="1.5" 
               strokeLinecap="round" 
               strokeLinejoin="round"
             >
@@ -122,18 +122,18 @@ export function ProfileMenu() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         
-        <div className="border-t border-slate-100 py-1">
+        <div className="border-t border-[#efefef] py-1 mt-1">
           <DropdownMenuItem 
-            className="px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer focus:bg-red-50"
+            className="px-5 py-3 text-sm text-[#ef4444] hover:bg-[#ef4444]/10 cursor-pointer focus:bg-[#ef4444]/10 rounded-lg mx-1"
             onClick={handleSignOut}
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-              className="w-4 h-4 mr-3" 
+              className="w-5 h-5 mr-3" 
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor" 
-              strokeWidth="2" 
+              strokeWidth="1.5" 
               strokeLinecap="round" 
               strokeLinejoin="round"
             >

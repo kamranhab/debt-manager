@@ -54,7 +54,7 @@ function ToastContainer({ toasts, removeToast }) {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-8 right-8 z-[9999] flex flex-col-reverse gap-4 max-w-md pointer-events-auto">
+    <div className="fixed bottom-8 right-8 z-[9999] flex flex-col-reverse gap-3 max-w-md pointer-events-auto">
       {toasts.map((toast) => (
         <Toast key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
       ))}
@@ -77,23 +77,57 @@ function Toast({ toast, onClose }) {
     return () => clearTimeout(timer);
   }, [toast, onClose]);
 
-  // Define toast styles based on type
+  // Define toast styles based on type with updated design
   const toastStyles = {
-    info: 'border-l-slate-400 bg-white',
-    success: 'border-l-emerald-500 bg-white',
-    warning: 'border-l-amber-500 bg-white',
-    error: 'border-l-red-500 bg-white',
+    info: 'bg-white border-[#2563eb]/20 text-[#262626]',
+    success: 'bg-white border-[#16a34a]/20 text-[#262626]',
+    warning: 'bg-white border-[#f97316]/20 text-[#262626]',
+    error: 'bg-white border-[#ef4444]/20 text-[#262626]',
+  };
+
+  const iconStyles = {
+    info: 'text-[#2563eb]',
+    success: 'text-[#16a34a]',
+    warning: 'text-[#f97316]',
+    error: 'text-[#ef4444]',
   };
 
   return (
     <div
-      className={`${toastStyles[type]} shadow-sm border border-slate-100 border-l-2 px-5 py-4 flex items-start gap-4 animate-slide-up w-full pointer-events-auto`}
+      className={`${toastStyles[type]} shadow-sm border rounded-xl px-5 py-4 flex items-start gap-4 animate-slide-up w-full pointer-events-auto`}
       role="alert"
     >
-      <div className="flex-grow text-sm text-slate-700">{message}</div>
+      {/* Toast Icon */}
+      <div className={`flex-shrink-0 ${iconStyles[type]}`}>
+        {type === 'success' && (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        )}
+        {type === 'error' && (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        )}
+        {type === 'warning' && (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        )}
+        {type === 'info' && (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        )}
+      </div>
+
+      {/* Toast Message */}
+      <div className="flex-grow text-sm">{message}</div>
+
+      {/* Close Button */}
       <button
         onClick={onClose}
-        className="text-slate-400 hover:text-slate-600 mt-0.5 flex items-center justify-center focus:outline-none"
+        className="text-[#8e8e8e] hover:text-[#262626] mt-0.5 flex items-center justify-center focus:outline-none p-1 rounded-full hover:bg-[#efefef] transition-colors"
         aria-label="Close"
       >
         <svg 
